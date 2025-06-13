@@ -19,6 +19,8 @@ return new class extends Migration
             $table->longText('full_instructions');
             $table->json('activities'); 
             $table->timestamps();
+
+            $table -> index('month');
         });
     }
 

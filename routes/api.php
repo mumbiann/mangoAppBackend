@@ -6,43 +6,36 @@ use App\Http\Controllers\FarmerController;
 use App\Http\Controllers\FarmController;
 use App\Http\Controllers\SeasonController;
 use App\Http\Controllers\NoteController;
-use App\Http\Controllers\SyncController;
+use App\Http\Middleware\UuidAuthMiddleware;
 
 Route::prefix('v1')->group(function () {
 
-    // ✅ Auth Routes
-    Route::post('auth/register', [AuthController::class, 'register']);
-    Route::post('auth/login', [AuthController::class, 'login']);
+    // Public routes
+    Route::post('farms', [FarmController::class, 'store']);
+    
+    Route::get('seasons/summary', [SeasonController::class, 'summary']);
+         
+    Route::get('seasons/{month}', [SeasonController::class, 'show'])
+         ->where('month', '[1-9]|1[0-2]');
 
     // ✅ Protected Routes
-    Route::middleware('auth:sanctum')->group(function () {
-
-        // Token refresh
-        Route::post('auth/refresh', [AuthController::class, 'refresh']);
-
-        // Farmer profile
-        Route::get('farmers/profile/{farmer}', [FarmerController::class, 'show']);
-        Route::put('farmers/profile/{farmer}', [FarmerController::class, 'update']);
+    Route::middleware(UuidAuthMiddleware::class)->group(function () {
 
         // Farms
-        Route::get('farms', [FarmController::class, 'index']);
-        Route::post('farms', [FarmController::class, 'store']);
-        Route::get('farms/{farm}', [FarmController::class, 'show']);
-        Route::put('farms/{farm}', [FarmController::class, 'update']);
-        Route::delete('farms/{farm}', [FarmController::class, 'destroy']);
+        Route::prefix('farms')->group(function () {
+            Route::get('/', [FarmController::class, 'index']);
+            Route::get('{farm}', [FarmController::class, 'show']);
+            Route::put('{farm}', [FarmController::class, 'update']);
+            Route::delete('{farm}', [FarmController::class, 'destroy']);
+            Route::get('{farm}/current-season', [FarmController::class, 'getCurrentSeason']);
+        });
 
         // Notes
-        Route::get('notes', [NoteController::class, 'index']);
-        Route::post('notes/sync', [NoteController::class, 'sync']);
-
-        // Seasons
-        Route::get('seasons', [SeasonController::class, 'index']);
-        Route::get('seasons/{month}', [SeasonController::class, 'show']);
-
-        // Initial data package
-        Route::get('sync/initial-package', [SyncController::class, 'initialPackage']);
-
-        // (Optional) farm sync
-        // Route::post('sync/farms', [SyncController::class, 'syncFarms']);
+        Route::prefix('notes')->group(function () {
+            Route::post('sync', [NoteController::class, 'sync']);
+            Route::get('/', [NoteController::class, 'index']);
+            Route::get('statistics', [NoteController::class, 'statistics']);
+            Route::get('farm/{farm}', [NoteController::class, 'farmNotes']);
+        });
     });
 });

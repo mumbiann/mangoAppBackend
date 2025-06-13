@@ -20,8 +20,9 @@ return new class extends Migration
             $table->string('village');
             $table->date('planting_date');
             $table->unsignedTinyInteger('current_season_month')->default(1);
-            $table->timestamp('last_synced_at')->nullable();
             $table->timestamps();
+
+            $table->index('current_season_month', 'farms_current_season_month_index');
         });
     }
 

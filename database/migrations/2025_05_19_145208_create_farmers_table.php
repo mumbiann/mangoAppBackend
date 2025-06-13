@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('farmers', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique()->comment('Unique identifier for farmer');
             $table->string('name');
-            $table->string('phone')->unique();
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->string('district');
-            $table->string('village');
+            
             $table->timestamps();
+
+            $table->index('uuid', 'farmers_uuid_index');
+            $table->index('name', 'farmers_name_index');
         });
     }
 
