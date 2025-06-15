@@ -14,6 +14,7 @@ Route::prefix('v1')->group(function () {
     Route::post('farms', [FarmController::class, 'store']);
     
     Route::get('seasons/summary', [SeasonController::class, 'summary']);
+    Route::get('seasons/full-details', [SeasonController::class, 'index']);
          
     Route::get('seasons/{month}', [SeasonController::class, 'show'])
          ->where('month', '[1-9]|1[0-2]');
